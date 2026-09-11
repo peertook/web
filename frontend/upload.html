@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Upload · Peertook</title>
+<link rel="stylesheet" href="css/main.css" />
+<link rel="stylesheet" href="css/video.css" />
+<link rel="stylesheet" href="css/responsive.css" />
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<div id="app-header"></div>
+
+<main id="main" class="container" role="main">
+  <h1 class="page-title">Upload a video</h1>
+
+  <form class="upload-card" id="upload-form" novalidate>
+    <div class="upload-row">
+      <label class="file-drop" for="video-file" id="video-drop">
+        <input id="video-file" type="file" accept="video/mp4,video/webm,video/ogg,video/quicktime" />
+        <span class="drop-title">Select video file</span>
+        <span class="drop-sub">MP4, WebM, OGG or MOV · up to 2 GB</span>
+        <span class="drop-chosen" id="video-chosen"></span>
+      </label>
+
+      <label class="file-drop small" for="thumb-file" id="thumb-drop">
+        <input id="thumb-file" type="file" accept="image/jpeg,image/png,image/webp,image/gif" />
+        <span class="drop-title">Thumbnail</span>
+        <span class="drop-sub">JPG, PNG, WebP or GIF · up to 8 MB</span>
+        <span class="drop-chosen" id="thumb-chosen"></span>
+      </label>
+    </div>
+
+    <label for="title">Title</label>
+    <input id="title" name="title" type="text" maxlength="150" required />
+
+    <label for="description">Description</label>
+    <textarea id="description" name="description" rows="6" maxlength="5000"></textarea>
+
+    <label for="visibility">Visibility</label>
+    <select id="visibility" name="visibility">
+      <option value="public" selected>Public</option>
+      <option value="unlisted">Unlisted</option>
+      <option value="private">Private</option>
+    </select>
+
+    <progress id="progress" max="100" value="0" hidden></progress>
+    <div class="form-error" id="form-error" role="alert" hidden></div>
+
+    <div class="actions">
+      <button class="btn btn-primary" type="submit" id="submit-btn">Publish</button>
+    </div>
+  </form>
+</main>
+
+<script src="js/config.js"></script>
+<script src="js/api.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/app.js"></script>
+<script src="js/upload.js"></script>
+</body>
+</html>
