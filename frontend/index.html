@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Peertook — Watch. Share. Discover.</title>
+<meta name="description" content="Peertook is an independent video-sharing platform." />
+<link rel="stylesheet" href="css/main.css" />
+<link rel="stylesheet" href="css/responsive.css" />
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<div id="app-header"></div>
+
+<nav class="category-bar" aria-label="Categories">
+  <div class="chips" id="category-chips"></div>
+</nav>
+
+<main id="main" class="container" role="main">
+  <section class="hero">
+    <div class="hero-text">
+      <h1>Welcome to <span class="grad">Peertook</span></h1>
+      <p>Independent creators. Real audiences. Share what you love.</p>
+      <div class="hero-cta">
+        <a class="btn btn-primary" href="upload.html">Upload a video</a>
+        <a class="btn btn-ghost" href="search.html">Explore</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="feed-section" aria-labelledby="trending-title">
+    <div class="section-head">
+      <h2 id="trending-title">Trending now</h2>
+    </div>
+    <div class="video-grid" id="trending-grid" aria-busy="true"></div>
+  </section>
+
+  <section class="feed-section" aria-labelledby="recent-title">
+    <div class="section-head">
+      <h2 id="recent-title">Recent uploads</h2>
+    </div>
+    <div class="video-grid" id="recent-grid" aria-busy="true"></div>
+  </section>
+
+  <section class="feed-section" aria-labelledby="all-title">
+    <div class="section-head">
+      <h2 id="all-title">Recommended</h2>
+    </div>
+    <div class="video-grid" id="all-grid" aria-busy="true"></div>
+    <div class="load-more-wrap">
+      <button class="btn btn-ghost" id="load-more" type="button">Load more</button>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <p>© <span id="year"></span> Peertook · An independent video platform</p>
+</footer>
+
+<div id="toast-host" class="toast-host" aria-live="polite"></div>
+
+<script src="js/config.js"></script>
+<script src="js/api.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/app.js"></script>
+<script>
+  (async () => {
+    document.getElementById("year").textContent = new Date().getFullYear();
+
+    const cats = ["All", "Music", "Gaming", "Tech", "Education", "Sports", "Travel", "Comedy"];
+    const chips = document.getElementById("category-chips");
+    chips.innerHTML = cats
+      .map((c, i) => `<button class="chip ${i === 0 ? "active" : ""}" type="button">${UI.escapeHtml(c)}</button>`)
+      .join("");
+
+    const trending = document.getElementById("trending-grid");
+    const recent = document.getElementById("recent-grid");
+    const all = document.getElementById("all-grid");
+
+    trending.innerHTML = UI.skeletonCards(4);
+    recent.innerHTML = UI.skeletonCards(4);
+    all.innerHTML = UI.skeletonCards(8);
+
+    try {
+      const [t, r] = await Promise.all([
+        API.getVideos({ sort: "trending", limit: 8 }),
+        API.getVideos({ sort: "recent", limit: 8 }),
+      ]);
+      trending.setAttribute("aria-busy", "false");
+      recent.setAttribute("aria-busy", "false");
+      trending.innerHTML = t.videos.length ? t.videos.map(UI.videoCard).join("") : UI.emptyState("No trending videos yet");
+      recent.innerHTML = r.videos.length ? r.videos.map(UI.videoCard).join("") : UI.emptyState("No recent uploads yet");
+    } catch (err) {
+      trending.innerHTML = UI.errorState(err.message);
+      recent.innerHTML = UI.errorState(err.message);
+    }
+
+    let page = 1;
+    const pageSize = 12;
+    async function loadPage() {
+      try {
+        const res = await API.getVideos({ page, limit: pageSize });
+        if (page === 1) {
+          all.setAttribute("aria-busy", "false");
+          all.innerHTML = res.videos.length ? res.videos.map(UI.videoCard).join("") : UI.emptyState("No videos yet", "Be the first to upload!");
+        } else {
+          all.insertAdjacentHTML("beforeend", res.videos.map(UI.videoCard).join(""));
+        }
+        if (page * pageSize >= res.total) {
+          document.getElementById("load-more").style.display = "none";
+        }
+        page += 1;
+      } catch (err) {
+        all.innerHTML = UI.errorState(err.message);
+      }
+    }
+    await loadPage();
+    document.getElementById("load-more").addEventListener("click", loadPage);
+  })();
+</script>
+</body>
+</html>
