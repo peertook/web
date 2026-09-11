@@ -112,4 +112,9 @@ export async function remove(request, env, ctx, params) {
 
   // Comment author OR video owner may delete.
   if (row.user_id !== me.id && row.video_owner !== me.id) {
-    throw new ApiError("FORBIDDEN", "You cannot delete this comment", 403
+    throw new ApiError("FORBIDDEN", "You cannot delete this comment", 403);
+  }
+
+  await env.DB.prepare(`DELETE FROM comments WHERE id = ?`).bind(id).run();
+  return ok({ deleted: true });
+}
