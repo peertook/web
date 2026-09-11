@@ -1,0 +1,32 @@
+# 1. Install Wrangler
+npm install -g wrangler
+
+# 2. Authenticate (opens browser)
+wrangler login
+
+# 3. Create D1 database
+wrangler d1 create peertook-db
+# → copy database_id into worker/wrangler.toml
+
+# 4. Create R2 bucket
+wrangler r2 bucket create peertook-media
+
+# 5. Apply schema (local + remote)
+cd worker
+wrangler d1 execute peertook-db --remote --file=../database/schema.sql
+
+# 6. Set required secrets
+wrangler secret put SESSION_SECRET           # 32+ char random string
+wrangler secret put R2_ACCOUNT_ID            # Cloudflare account ID
+wrangler secret put R2_ACCESS_KEY_ID         # R2 API token Access Key
+wrangler secret put R2_SECRET_ACCESS_KEY     # R2 API token Secret
+wrangler secret put MEDIA_BUCKET_NAME        # "peertook-media"
+
+# 7. Deploy the Worker
+wrangler deploy
+# → note the printed https://peertook-worker.<subdomain>.workers.dev URL
+
+# 8. Wire the frontend
+# Edit frontend/js/config.js and set API_BASE_URL to the URL from step 7.
+
+# 9. Push frontend to GitHub Pages (or use the workflow above)
