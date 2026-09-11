@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Create account · Peertook</title>
+<link rel="stylesheet" href="css/main.css" />
+<link rel="stylesheet" href="css/auth.css" />
+<link rel="stylesheet" href="css/responsive.css" />
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<div id="app-header"></div>
+
+<main id="main" class="auth-wrap" role="main">
+  <form class="auth-card" id="register-form" novalidate>
+    <h1>Join Peertook</h1>
+    <p class="sub">Create your account in seconds.</p>
+
+    <label for="username">Username</label>
+    <input id="username" name="username" type="text" autocomplete="username" required
+           pattern="[A-Za-z0-9_]{3,24}" />
+    <small>3–24 characters: letters, numbers, underscore.</small>
+
+    <label for="email">Email</label>
+    <input id="email" name="email" type="email" autocomplete="email" required />
+
+    <label for="password">Password</label>
+    <input id="password" name="password" type="password" autocomplete="new-password" minlength="8" required />
+    <small>At least 8 characters.</small>
+
+    <div class="form-error" id="form-error" role="alert" hidden></div>
+
+    <button class="btn btn-primary full" type="submit" id="submit-btn">Create account</button>
+
+    <p class="alt">Already have an account? <a href="login.html">Sign in</a></p>
+  </form>
+</main>
+
+<script src="js/config.js"></script>
+<script src="js/api.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/app.js"></script>
+<script>
+  (async () => {
+    const form = document.getElementById("register-form");
+    const errEl = document.getElementById("form-error");
+    const btn = document.getElementById("submit-btn");
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      errEl.hidden = true;
+      const username = document.getElementById("username").value.trim();
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value;
+
+      if (!/^[A-Za-z0-9_]{3,24}$/.test(username)) {
+        errEl.textContent = "Username must be 3–24 letters, numbers or underscore.";
+        errEl.hidden = false; return;
+      }
+      if (!email) {
+        errEl.textContent = "Email is required.";
+        errEl.hidden = false; return;
+      }
+      if (password.length < 8) {
+        errEl.textContent = "Password must be at least 8 characters.";
+        errEl.hidden = false; return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = "Creating…";
+      try {
+        await Auth.register({ username, email, password });
+        location.href = "index.html";
+      } catch (err) {
+        errEl.textContent = err.message || "Registration failed.";
+        errEl.hidden = false;
+        btn.disabled = false;
+        btn.textContent = "Create account";
+      }
+    });
+  })();
+</script>
+</body>
+</html>
