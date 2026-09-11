@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Sign in · Peertook</title>
+<link rel="stylesheet" href="css/main.css" />
+<link rel="stylesheet" href="css/auth.css" />
+<link rel="stylesheet" href="css/responsive.css" />
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<div id="app-header"></div>
+
+<main id="main" class="auth-wrap" role="main">
+  <form class="auth-card" id="login-form" novalidate>
+    <h1>Welcome back</h1>
+    <p class="sub">Sign in to continue to Peertook.</p>
+
+    <label for="identifier">Username or email</label>
+    <input id="identifier" name="identifier" type="text" autocomplete="username" required />
+
+    <label for="password">Password</label>
+    <input id="password" name="password" type="password" autocomplete="current-password" required />
+
+    <div class="form-error" id="form-error" role="alert" hidden></div>
+
+    <button class="btn btn-primary full" type="submit" id="submit-btn">Sign in</button>
+
+    <p class="alt">No account yet? <a href="register.html">Create one</a></p>
+  </form>
+</main>
+
+<script src="js/config.js"></script>
+<script src="js/api.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/app.js"></script>
+<script>
+  (async () => {
+    const form = document.getElementById("login-form");
+    const errEl = document.getElementById("form-error");
+    const btn = document.getElementById("submit-btn");
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      errEl.hidden = true;
+      const identifier = document.getElementById("identifier").value.trim();
+      const password = document.getElementById("password").value;
+      if (!identifier || !password) {
+        errEl.textContent = "Please fill in all fields.";
+        errEl.hidden = false;
+        return;
+      }
+      btn.disabled = true;
+      btn.textContent = "Signing in…";
+      try {
+        await Auth.login({ username: identifier, password });
+        const next = UI.qsParam("next") || "index.html";
+        location.href = next;
+      } catch (err) {
+        errEl.textContent = err.message || "Sign-in failed.";
+        errEl.hidden = false;
+        btn.disabled = false;
+        btn.textContent = "Sign in";
+      }
+    });
+  })();
+</script>
+</body>
+</html>
