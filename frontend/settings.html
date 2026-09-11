@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Settings · Peertook</title>
+<link rel="stylesheet" href="css/main.css" />
+<link rel="stylesheet" href="css/auth.css" />
+<link rel="stylesheet" href="css/responsive.css" />
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<div id="app-header"></div>
+
+<main id="main" class="auth-wrap" role="main">
+  <section class="auth-card" id="settings-card" aria-busy="true"></section>
+</main>
+
+<script src="js/config.js"></script>
+<script src="js/api.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/app.js"></script>
+<script>
+  (async () => {
+    const card = document.getElementById("settings-card");
+    const me = Auth.current();
+
+    if (!me) {
+      card.setAttribute("aria-busy", "false");
+      card.innerHTML = `
+        <h1>Settings</h1>
+        <p class="sub">Please sign in to manage your account.</p>
+        <a class="btn btn-primary full" href="login.html?next=settings.html">Sign in</a>
+      `;
+      return;
+    }
+
+    card.setAttribute("aria-busy", "false");
+    card.innerHTML = `
+      <h1>Channel settings</h1>
+      <p class="sub">Update your public profile.</p>
+
+      <label for="s-username">Username</label>
+      <input id="s-username" type="text" value="${UI.escapeHtml(me.username)}" disabled />
+
+      <label for="s-email">Email</label>
+      <input id="s-email" type="email" value="${UI.escapeHtml(me.email || "")}" disabled />
+
+      <label for="s-avatar">Avatar URL</label>
+      <input id="s-avatar" type="url" value="${UI.escapeHtml(me.avatar_url || "")}" placeholder="https://…" />
+
+      <label for="s-bio">Bio</label>
+      <textarea id="s-bio" rows="4" maxlength="500">${UI.escapeHtml(me.bio || "")}</textarea>
+
+      <div class="form-error" id="form-error" role="alert" hidden></div>
+      <button class="btn btn-primary full" id="save-btn" type="button">Save changes</button>
+      <button class="btn btn-ghost full" id="signout-btn" type="button">Sign out</button>
+    `;
+
+    const errEl = document.getElementById("form-error");
+    document.getElementById("save-btn").addEventListener("click", async () => {
+      errEl.hidden = true;
+      const avatar = document.getElementById("s-avatar").value.trim();
+      const bio = document.getElementById("s-bio").value;
+      try {
+        const res = await API.updateMe({
+          avatar_url: avatar ? avatar : null,
+          bio,
+        });
+        // refresh cached auth
+        await Auth.load();
+        await UI.renderHeader();
+        UI.toast("Settings saved", "success");
+      } catch (err) {
+        errEl.textContent = err.message;
+        errEl.hidden = false;
+      }
+    });
+
+    document.getElementById("signout-btn").addEventListener("click", async () => {
+      try { await Auth.logout(); } catch {}
+      location.href = "index.html";
+    });
+  })();
+</script>
+</body>
+</html>
