@@ -1,0 +1,46 @@
+# Peertook Worker configuration
+# Replace the placeholder values below with your own account-specific IDs.
+
+name = "peertook-worker"
+main = "src/index.js"
+compatibility_date = "2024-11-01"
+compatibility_flags = ["nodejs_compat"]
+
+# -----------------------------------------------------------
+# D1 (SQLite) — create with:  wrangler d1 create peertook-db
+# Then paste the returned database_id below.
+# -----------------------------------------------------------
+[[d1_databases]]
+binding = "DB"
+database_name = "peertook-db"
+database_id = "REPLACE_WITH_D1_DATABASE_ID"
+
+# -----------------------------------------------------------
+# R2 — create with:  wrangler r2 bucket create peertook-media
+# -----------------------------------------------------------
+[[r2_buckets]]
+binding = "MEDIA"
+bucket_name = "peertook-media"
+
+# -----------------------------------------------------------
+# Public variables
+# -----------------------------------------------------------
+[vars]
+# Comma-separated list of allowed frontend origins (GitHub Pages).
+# Example: "https://youruser.github.io,https://peertook.example.com"
+ALLOWED_ORIGINS = "https://peertook.github.io"
+
+# Session lifetime in seconds (7 days)
+SESSION_TTL = "604800"
+
+# Max upload size in bytes (2 GiB)
+MAX_UPLOAD_SIZE = "2147483648"
+
+# Environment: "production" | "development"
+ENVIRONMENT = "production"
+
+# -----------------------------------------------------------
+# Secrets — set with:  wrangler secret put SESSION_SECRET
+# -----------------------------------------------------------
+# SESSION_SECRET      (required) random string, >= 32 chars
+# (R2 credentials are provided automatically via the MEDIA binding)
